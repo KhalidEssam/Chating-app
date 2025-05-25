@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Box, Paper, TextField, IconButton } from '@mui/material';
 import { Send } from '@mui/icons-material';
-import { useSocket } from '@/hooks/use-socket';
-import { Message } from '@/types/chat';
+import { useSocket } from '@/contexts/socket-context';
 import { MessageItem } from './message';
+import { Typography } from '@mui/material';
 
 interface ChatRoomProps {}
 
@@ -22,6 +22,7 @@ export const ChatRoom = ({}: ChatRoomProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (message.trim()) {
       sendMessage(message);
       setMessage('');
@@ -33,11 +34,29 @@ export const ChatRoom = ({}: ChatRoomProps) => {
       <Paper sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
         <Box flex={1} overflow="auto" p={2}>
           {messages.map((msg, index) => (
-            <MessageItem
+            <Box
               key={index}
-              message={msg}
-              isOwn={msg.isOwn}
-            />
+              display="flex"
+              alignItems="center"
+              gap={1}
+              justifyContent={msg.isOwn ? 'flex-end' : 'flex-start'}
+            >
+              {!msg.isOwn && (
+                <Typography variant="body2" color="textSecondary">
+                  {msg.sender.name}
+                </Typography>
+              )}
+              <MessageItem
+                message={msg}
+                name={msg.sender.name}
+                isOwn={msg.isOwn}
+              />
+              {msg.isOwn && (
+                <Typography variant="body2" color="textSecondary">
+                  {msg.sender.name}
+                </Typography>
+              )}
+            </Box>
           ))}
         </Box>
         <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
