@@ -1,11 +1,13 @@
 import { Box, List, ListItem, ListItemText, Avatar, Typography } from '@mui/material';
 import { Person } from '@mui/icons-material';
+import { useSocket } from '@/contexts/socket-context';
 
 export const ChatSidebar = () => {
+  const { currentRoom, joinRoom } = useSocket();
   const rooms = [
-    { id: 1, name: 'General', participants: 25 },
-    { id: 2, name: 'Development', participants: 18 },
-    { id: 3, name: 'Design', participants: 12 },
+    { id: 'general', name: 'General', participants: 25 },
+    { id: 'development', name: 'Development', participants: 18 },
+    { id: 'design', name: 'Design', participants: 12 },
   ];
 
   return (
@@ -24,10 +26,23 @@ export const ChatSidebar = () => {
         <Typography variant="h6" fontWeight="bold">
           Chat Rooms
         </Typography>
+        {currentRoom && (
+          <Typography variant="subtitle2" color="textSecondary">
+            Current room: {currentRoom}
+          </Typography>
+        )}
       </Box>
       <List>
         {rooms.map((room) => (
-          <ListItem button key={room.id}>
+          <ListItem
+            button
+            key={room.id}
+            onClick={() => joinRoom(room.id)}
+            sx={{
+              backgroundColor: currentRoom === room.id ? 'action.hover' : 'transparent',
+              '&:hover': { backgroundColor: 'action.hover' }
+            }}
+          >
             <Avatar>
               <Person />
             </Avatar>

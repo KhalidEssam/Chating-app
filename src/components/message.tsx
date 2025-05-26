@@ -4,10 +4,9 @@ import { Message } from '@/types/chat';
 interface MessageProps {
   message: Message;
   isOwn: boolean;
-  name : string;
 }
 
-export const MessageItem = ({ message, isOwn , name }: MessageProps) => {
+export const MessageItem = ({ message, isOwn }: MessageProps) => {
   return (
     <Box
       sx={{

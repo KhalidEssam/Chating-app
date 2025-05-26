@@ -11,7 +11,18 @@ interface ChatRoomProps {}
 
 export const ChatRoom = ({}: ChatRoomProps) => {
   const [message, setMessage] = useState('');
-  const { sendMessage, messages } = useSocket();
+  const { sendMessage, messages, currentRoom, joinRoom } = useSocket();
+
+  useEffect(() => {
+    // Join the general room when component mounts
+    if (!currentRoom) {
+      joinRoom('general');
+    }
+  }, [currentRoom, joinRoom]);
+
+  useEffect(() => {
+    console.log('Messages state:', messages);
+  }, [messages]);
 
   useEffect(() => {
     // This effect ensures the socket stays connected
@@ -29,9 +40,21 @@ export const ChatRoom = ({}: ChatRoomProps) => {
     }
   };
 
+  useEffect(() => {
+    console.log('Messages state:', messages);
+  }, [messages]);
+
   return (
-    <Box flex={1} p={2}>
+    <Box flex={1} p={6}>
       <Paper sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+        <Box p={2}>
+          <Typography variant="h6" fontWeight="bold">
+            {currentRoom ? currentRoom : 'No room selected'}
+          </Typography>
+          <Typography variant="caption" color="textSecondary">
+            Messages count: {messages.length}
+          </Typography>
+        </Box>
         <Box flex={1} overflow="auto" p={2}>
           {messages.map((msg, index) => (
             <Box
@@ -48,7 +71,6 @@ export const ChatRoom = ({}: ChatRoomProps) => {
               )}
               <MessageItem
                 message={msg}
-                name={msg.sender.name}
                 isOwn={msg.isOwn}
               />
               {msg.isOwn && (

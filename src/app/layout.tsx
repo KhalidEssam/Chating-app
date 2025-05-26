@@ -1,15 +1,15 @@
-// app/layout.tsx
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { ThemeProvider } from '@/components/theme-provider';
+import { AppThemeProvider } from '@/contexts/theme-context';
 import { SocketProvider } from '@/contexts/socket-context';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Chat App',
-  description: 'Modern real-time chat application',
+  description: 'A real-time chat application',
 };
 
 export default function RootLayout({
@@ -19,12 +19,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <SocketProvider>
-          <ThemeProvider>
-            {children}
+      <body className={inter.className + ' overflow-hidden'}>
+        <AppThemeProvider>
+          <ThemeProvider> {/* <-- MUI theme uses context's darkMode */}
+            <SocketProvider>
+              {children}
+            </SocketProvider>
           </ThemeProvider>
-        </SocketProvider>
+        </AppThemeProvider>
+
       </body>
     </html>
   );

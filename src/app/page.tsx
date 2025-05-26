@@ -5,6 +5,7 @@ import { ChatSidebar } from '@/components/chat-sidebar';
 import { UserIdentification } from '@/components/user-identification';
 import { useSocket } from '@/contexts/socket-context';
 import { useEffect } from 'react';
+import { ChatToolbar } from '@/components/chat-toolbar';
 
 export default function Home() {
   const { isIdentified } = useSocket();
@@ -19,7 +20,8 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen bg-gray-50">
+    <main className="flex min-h-screen bg-gray-50 dark:bg-gray-700 ">
+      <ChatToolbar />
       <ChatSidebar />
       <ChatRoom />
     </main>
