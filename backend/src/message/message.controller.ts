@@ -2,13 +2,13 @@ import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nes
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Message } from './message.entity';
 
 @ApiTags('messages')
 @Controller('messages')
-@UseGuards(AuthGuard())
+// @UseGuards(JwtAuthGuard)
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
