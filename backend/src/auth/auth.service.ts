@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../user/user.entity';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
@@ -15,28 +16,32 @@ export class AuthService {
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { username },
-      select: ['id', 'username', 'password'] // Only select necessary fields
+      select: ['id', 'username', 'password']
     });
 
-    if (user && (await this.comparePasswords(pass, user.password))) {
-      const { password, ...result } = user;
-      return result;
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
     }
-    return null;
+
+    const isValidPassword = await bcrypt.compare(pass, user.password);
+    if (!isValidPassword) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const { password, ...result } = user;
+    return result;
   }
 
-  async login(user: any) {
+  async login(user: User) {
+    console.log(user);
     const payload = { userId: user.id, username: user.username };
+    console.log(payload);
     return {
       access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        username: user.username
+      }
     };
-  }
-
-  private async comparePasswords(plainTextPassword: string, hashedPassword: string): Promise<boolean> {
-    // You should implement your password hashing comparison logic here
-    // For example, if you're using bcrypt:
-    // return await bcrypt.compare(plainTextPassword, hashedPassword);
-    // For now, we'll just return true for testing purposes
-    return true;
   }
 }

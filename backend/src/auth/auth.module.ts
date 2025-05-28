@@ -5,6 +5,9 @@ import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/user.entity';
 import { JwtStrategy } from './jwt.strategy';
+import { AuthController } from './auth.controller';   // <-- import your controller
+import { AuthService } from './auth.service';         // <-- import your service
+import { LocalStrategy } from './local.strategy';     // <-- if you have this
 
 @Module({
   imports: [
@@ -20,7 +23,12 @@ import { JwtStrategy } from './jwt.strategy';
     }),
     TypeOrmModule.forFeature([User]),
   ],
-  providers: [JwtStrategy],
+  controllers: [AuthController],     // <--- Add your controller here!
+  providers: [
+    AuthService,                     // <--- Add your AuthService here!
+    JwtStrategy,
+    LocalStrategy,                   // <--- Add your LocalStrategy if used by LocalAuthGuard
+  ],
   exports: [JwtModule],
 })
 export class AuthModule {}

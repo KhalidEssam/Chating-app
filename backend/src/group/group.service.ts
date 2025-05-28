@@ -30,7 +30,6 @@ export class GroupService {
 
     return this.groupRepository.save(group);
   }
-
   async getAllGroups(): Promise<Group[]> {
     return this.groupRepository.find({
       relations: ['members', 'messages']

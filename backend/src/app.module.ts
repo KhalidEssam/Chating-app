@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 
 import { MessageModule } from './message/message.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MessageModule } from './message/message.module';
       logging: true,// logs SQL queries for debugging
       synchronize: true,// WARNING: Disable in production
     }),
+    UserModule,
     MessageModule,
     AuthModule,
   ],
