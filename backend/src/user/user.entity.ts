@@ -22,6 +22,7 @@ export class User {
   @Column({ unique: true, nullable: true })
   phoneNumber?: string;
 
+  @Column({ select: false })
   @Column()
   password: string; // store hashed password only
 
