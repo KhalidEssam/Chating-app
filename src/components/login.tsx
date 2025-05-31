@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Box, Button, TextField, Typography, Paper } from '@mui/material';
 import { apiService } from '@/services/api.service';
 
@@ -10,29 +10,45 @@ export const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
+    // Basic validation
+    if (!username.trim() || !password.trim()) {
+      setError('Please enter username and password');
+      return;
+    }
+
     setLoading(true);
     setError('');
+
     try {
       const response = await apiService.login({ username, password });
 
       if (!response.success) {
-        throw new Error('Login failed');
+        throw new Error(response.message || 'Login failed');
       }
 
-      localStorage.setItem('token', response.token);
+      try {
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        
+      } catch (storageError) {
+        console.warn('LocalStorage error:', storageError);
+      }
 
-      // Validate token by fetching users
+      // Optionally verify token validity by fetching users
       await apiService.getUsers();
 
       window.location.href = '/';
-    } catch (err) {
-      setError('Invalid credentials');
+    } catch (err: any) {
+      setError(err.message || 'Invalid credentials');
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     } finally {
       setLoading(false);
     }
-  };
+  }, [username, password]);
+
+  const isButtonDisabled = loading || !username.trim() || !password.trim();
 
   return (
     <Box
@@ -60,6 +76,7 @@ export const Login = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           margin="normal"
+          disabled={loading}
         />
 
         <TextField
@@ -69,6 +86,7 @@ export const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           margin="normal"
+          disabled={loading}
         />
 
         <Button
@@ -77,7 +95,7 @@ export const Login = () => {
           color="primary"
           onClick={handleLogin}
           sx={{ mt: 2 }}
-          disabled={loading}
+          disabled={isButtonDisabled}
         >
           {loading ? 'Logging in...' : 'Login'}
         </Button>

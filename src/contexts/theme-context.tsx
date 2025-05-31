@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 // Helper function to check if we're on the client
 const isClient = typeof window !== 'undefined';
 
-interface ThemeContextType {
+export interface ThemeContextType {
   isDarkMode: boolean;
   toggleTheme: () => void;
 }

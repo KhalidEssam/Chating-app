@@ -5,13 +5,13 @@ import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/st
 import CssBaseline from '@mui/material/CssBaseline';
 import { useTheme } from '@/contexts/theme-context'; // your dark mode context
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children, themeMode }: { children: React.ReactNode; themeMode: boolean }) {
   const { isDarkMode } = useTheme();
 
   const theme = React.useMemo(() => {
     return createTheme({
       palette: {
-        mode: isDarkMode ? 'dark' : 'light',
+        mode: themeMode ? 'dark' : 'light',
         primary: { main: '#1976d2' },
         secondary: { main: '#dc004e' },
       },
