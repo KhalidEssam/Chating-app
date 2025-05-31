@@ -1,7 +1,12 @@
+'use client';
+ 
+
 import { IconButton } from "@mui/material";
 import { MoonIcon, SunIcon } from 'lucide-react';
 import { Box ,Typography } from "@mui/material";
 import { useTheme } from '@/contexts/theme-context';
+import Logout from './logout';
+
 
 export const ChatToolbar = () => {
   const { isDarkMode, toggleTheme } = useTheme();
@@ -41,7 +46,12 @@ export const ChatToolbar = () => {
               {isDarkMode ? <SunIcon /> : <MoonIcon />}
    
       </IconButton>
+      <Box sx={{ marginRight: '2.5rem' }}>
+        <Logout />
       </Box>
+      </Box>
+
+      
     </Box>
   );
 };

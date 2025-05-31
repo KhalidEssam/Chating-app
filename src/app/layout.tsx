@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { AppThemeProvider } from '@/contexts/theme-context';
+import { AppThemeProvider, ThemeContextType } from '@/contexts/theme-context';
 import { SocketProvider } from '@/contexts/socket-context';
 import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProviderWrapper } from '@/components/theme-provider-wrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,11 +22,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className + ' overflow-hidden'}>
         <AppThemeProvider>
-          <ThemeProvider> {/* <-- MUI theme uses context's darkMode */}
+          <ThemeProviderWrapper>
             <SocketProvider>
               {children}
             </SocketProvider>
-          </ThemeProvider>
+          </ThemeProviderWrapper>
         </AppThemeProvider>
 
       </body>
