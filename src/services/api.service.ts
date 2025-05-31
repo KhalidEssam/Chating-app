@@ -96,7 +96,8 @@ export const apiService = {
 
   async createMessage(message: Message) {
     try {
-      console.log(message);
+      // console.log('message', message)
+
       const response = await api.post('/messages', message);
       return response.data;
     } catch (error) {

@@ -18,13 +18,15 @@ interface SocketContextType {
   isIdentified: boolean;
   messages: Message[];
   currentRoomId: number | null;
+  currentMessages: Message[];
   user: User | null;
   sendMessage: (content: string) => void;
   joinRoom: (roomId: string) => void;
-  leaveRoom: () => void;
+  // leaveRoom: (roomId: number) => void;
   createGroup: (groupName: string) => Promise<void>;
   error: string | null;
   initialized: boolean;
+  lastMessages: Record<number, { message: string; time: string }>;
 }
 
 const EVENTS = {
@@ -54,6 +56,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isIdentified, setIsIdentified] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [currentRoom, setCurrentRoom] = useState<number | null>(null);
+  const [lastMessages, setLastMessages] = useState<Record<number, { message: string; time: string }>>({});
   const socketRef = useRef<Socket | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -120,26 +123,61 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     socket.on(EVENTS.ROOM_JOINED, async (roomId: number) => {
       console.log('Room joined:', roomId);
-      setCurrentRoom(roomId);
+      try {
+        // Request room history after joining
+        socket.emit('request-room-history', roomId);
+        console.log(roomId);
+        setCurrentRoom(roomId);
+      } catch (error) {
+        console.error('Error handling room join:', error);
+        setError('Failed to join room');
+      }
     });
 
     socket.on(EVENTS.ROOM_HISTORY, (messages: Message[], roomId: number) => {
       console.log(`Received message history for room ${roomId}:`, messages);
-    
+      
       const formattedMessages = messages?.map((msg) =>
         formatMessage(msg, userRef.current?.id)
       );
-    
+      
+      // Update messagesMap which will trigger currentMessages to update automatically
       setMessagesMap((prev) => ({
         ...prev,
         [roomId]: formattedMessages,
       }));
+
+      // Set last message for this room
+      if (formattedMessages.length > 0) {
+        const lastMsg = formattedMessages[formattedMessages.length - 1];
+        setLastMessages(prev => ({
+          ...prev,
+          [roomId]: {
+            message: lastMsg.content,
+            time: lastMsg.createdAt ? new Date(lastMsg.createdAt).toLocaleTimeString() : new Date().toLocaleTimeString()
+          }
+        }));
+      }
     });
     
 
-    socket.on(EVENTS.ROOM_LEFT, () => {
-      console.log('Room left');
-      setCurrentRoom(null);
+    socket.on(EVENTS.ROOM_LEFT, (roomId: number) => {
+      console.log(`Left room ${roomId}`);
+      // Clear current room if it matches the left room
+      if (currentRoom === roomId) {
+        setCurrentRoom(null);
+        // Clear messages for this room
+        setMessagesMap(prev => ({
+          ...prev,
+          [roomId]: []
+        }));
+        // Clear last message for this room
+        setLastMessages(prev => {
+          const newLastMessages = { ...prev };
+          delete newLastMessages[roomId];
+          return newLastMessages;
+        });
+      }
     });
 
     socket.on(EVENTS.MESSAGE, (msg: Message) => {
@@ -150,6 +188,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
           [msg.roomId]: [...roomMessages, formatMessage(msg, userRef.current?.id)],
         };
       });
+
+      // Update last message for this room
+      setLastMessages(prev => ({
+        ...prev,
+        [msg.roomId]: {
+          message: msg.content,
+          time: msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : new Date().toLocaleTimeString()
+        }
+      }));
     });
 
     socket.connect();
@@ -164,14 +211,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const socket = socketRef.current;
     const token = localStorage.getItem('token')
     if (!socket || !socket.connected) return;
+
     socket.emit('join-room', roomId, token);
   };
 
-  const leaveRoom = () => {
-    const socket = socketRef.current;
-    if (!socket || !socket.connected) return;
-    socket.emit('leave-room');
-  };
+  // const leaveRoom = (roomId: number) => {
+  //   const socket = socketRef.current;
+  //   if (!socket || !socket.connected) return;
+  //   socket.emit('leave-room', roomId);
+  // };
 
   const sendMessage = async (content: string) => {
     const socket = socketRef.current;
@@ -188,7 +236,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         roomId,
         createdAt,
       };
-
+      // console.log('message', message)
       await apiService.createMessage(message);
       socket.emit('message', message);
 
@@ -233,12 +281,14 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       user,
       sendMessage,
       joinRoom,
-      leaveRoom,
+      // leaveRoom,
       createGroup,
       error,
       initialized,
+      currentMessages,
+      lastMessages,
     }),
-    [isIdentified, currentMessages, currentRoom, user, error, initialized]
+    [isIdentified, currentMessages, currentRoom, user, error, initialized, lastMessages]
   );
 
   return (
