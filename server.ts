@@ -53,8 +53,8 @@ io.on('connection', (socket: Socket) => {
   });
 
   socket.on('join-room', async (roomId: string, token: string) => {
-    if (socket.rooms.has(roomId) || !token ||!roomId) return;
-  
+    if (!token ||!roomId) return;
+    
     socket.join(roomId);
     socket.emit('room-joined', roomId);    
   
@@ -64,6 +64,7 @@ io.on('connection', (socket: Socket) => {
           Authorization: `Bearer ${token}`,
         },
       });
+
       const history = res.data || [];
       socket.emit('room-history', history, roomId);
     } catch (error) {
@@ -72,16 +73,16 @@ io.on('connection', (socket: Socket) => {
     }
   });
 
-  // Leave all rooms except socket.id
-  socket.on('leave-room', () => {
-    console.log('Leaving all rooms for socket:', socket.id);
-    for (const room of socket.rooms) {
-      if (room !== socket.id) {
-        socket.leave(room);
-      }
-    }
-    socket.emit('room-left');
-  });
+  // // Leave all rooms except socket.id
+  // socket.on('leave-room', () => {
+  //   console.log('Leaving all rooms for socket:', socket.id);
+  //   for (const room of socket.rooms) {
+  //     if (room !== socket.id) {
+  //       socket.leave(room);
+  //     }
+  //   }
+  //   socket.emit('room-left');
+  // });
 
   // Send Message
   socket.on('send-message', (msg) => {
