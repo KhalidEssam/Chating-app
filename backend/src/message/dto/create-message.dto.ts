@@ -10,6 +10,9 @@ export class CreateMessageDto {
   @IsUUID()
   senderId: string;
 
+  @IsString()
+  roomId: string;
+
   @IsOptional()
   @IsString()
   @ApiProperty({ required: false })

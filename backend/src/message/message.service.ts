@@ -31,7 +31,7 @@ async create(createMessageDto: CreateMessageDto): Promise<Message> {
     content,
     sender,
     senderName: sender.username,
-    roomId: groupId || 0 || receiverId,
+    roomId: createMessageDto.roomId,
     receiver: receiverId ? await this.usersRepository.findOne({ where: { id: receiverId } }) : null
   });
 
@@ -58,7 +58,7 @@ async create(createMessageDto: CreateMessageDto): Promise<Message> {
     message.group = group;
   }
 
-  message.roomId = groupId || 'friends_chat';
+  // message.roomId = groupId || 'friends_chat';
 
 
   return this.messagesRepository.save(message);
