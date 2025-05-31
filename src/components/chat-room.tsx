@@ -51,6 +51,7 @@ export const ChatRoom = ({}: ChatRoomProps) => {
         </Box>
         <Box flex={1} overflow="auto" p={2}>
           {messages?.map((msg, index) => {
+            // console.log('message' ,msg)
             if (!msg ) return null;
             return (
               <Box
@@ -62,7 +63,7 @@ export const ChatRoom = ({}: ChatRoomProps) => {
               >
                 {!msg.isOwn && (
                   <Typography variant="body2" color="textSecondary">
-                    {msg.senderId}
+                    {msg.sender.username }
                   </Typography>
                 )}
                 <MessageItem
@@ -71,7 +72,7 @@ export const ChatRoom = ({}: ChatRoomProps) => {
                 />
                 {msg.isOwn && (
                   <Typography variant="body2" color="textSecondary">
-                    {msg.senderId}
+                    {msg.sender?.username|| 'me' }
                   </Typography>
                 )}
               </Box>

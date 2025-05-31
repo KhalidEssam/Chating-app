@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Box, List, ListItem, ListItemText, Avatar, Typography } from '@mui/material';
-import { Person, GroupAdd } from '@mui/icons-material';
+import { Box, List, ListItem, ListItemText, Avatar, Typography, IconButton } from '@mui/material';
+import { Person, GroupAdd, ExitToApp } from '@mui/icons-material';
 import { useSocket } from '@/contexts/socket-context';
 import { GroupCreateModal } from './group-create-modal';
 import {apiService} from '@/services/api.service';  // adjust path accordingly
@@ -11,13 +11,16 @@ interface Room {
   id: number;
   name: string;
   participants: number;
+  lastMessage?: string;
+  lastMessageTime?: string;
 }
 
 export const ChatSidebar = () => {
-  const { currentRoomId: currentRoom, joinRoom } = useSocket();
+  const { currentRoomId: currentRoom, joinRoom,  lastMessages } = useSocket();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     async function fetchGroups() {
@@ -90,7 +93,11 @@ export const ChatSidebar = () => {
             <Avatar>{room.id === 0 ? <Person /> : <GroupAdd />}</Avatar>
             <ListItemText
               primary={room.name}
-              secondary={`${room.participants} participants`}
+              secondary={
+                lastMessages[room.id]?.message ? 
+                  `${lastMessages[room.id].message} • ${lastMessages[room.id].time}` : 
+                  `${room.participants} participants`
+              }
             />
           </ListItem>
         ))}
