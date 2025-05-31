@@ -10,6 +10,15 @@ export class Message {
   @Column()
   content: string;
 
+  @ManyToOne(() => User, (user) => user.sentMessages, { nullable: false })
+  sender: User;
+
+  @ManyToOne(() => User, (user) => user.receivedMessages, { nullable: true })
+  receiver: User | null;
+
+  @ManyToOne(() => Group, (group) => group.messages, { nullable: true })
+  group: Group | null;
+
   @Column()
   senderName: string;  // optional: you can get this from sender.username, consider removing redundancy
 
@@ -18,16 +27,5 @@ export class Message {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   timestamp: Date;
-
-  @ManyToOne(() => User, (user) => user.sentMessages, { nullable: false })
-  sender: User;
-
-  @ManyToOne(() => User, (user) => user.receivedMessages, { nullable: true })
-  receiver: User | null;  // make nullable if it could be a group message with no single receiver
-
-
-  @ManyToOne(() => Group, group => group.messages, { nullable: true })
-  group: Group | null;
-
 
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Message } from './message.entity';
@@ -18,39 +18,51 @@ export class MessageService {
     private groupsRepository: Repository<Group>,
   ) {}
 
-  async create(createMessageDto: CreateMessageDto): Promise<Message> {
-    const { content, senderId, receiverId, groupId } = createMessageDto;
-    
-    const sender = await this.usersRepository.findOne({ where: { id: senderId } });
-    if (!sender) {
-      throw new Error('Sender not found');
-    }
+async create(createMessageDto: CreateMessageDto): Promise<Message> {
+  const { content, senderId, receiverId, groupId } = createMessageDto;
 
-    const message = this.messagesRepository.create({
-      content,
-      sender,
-      senderName: sender.username,
-      roomId: groupId || receiverId,
-    });
-
-    if (receiverId) {
-      const receiver = await this.usersRepository.findOne({ where: { id: receiverId } });
-      if (!receiver) {
-        throw new Error('Receiver not found');
-      }
-      message.receiver = receiver;
-    }
-
-    if (groupId) {
-      const group = await this.groupsRepository.findOne({ where: { id: +groupId } });
-      if (!group) {
-        throw new Error('Group not found');
-      }
-      message.group = group;
-    }
-
-    return this.messagesRepository.save(message);
+  // Fetch sender
+  const sender = await this.usersRepository.findOne({ where: { id: senderId } });
+  if (!sender) {
+    throw new NotFoundException('Sender not found');
   }
+
+  const message = this.messagesRepository.create({
+    content,
+    sender,
+    senderName: sender.username,
+    roomId: groupId || 0 || receiverId,
+    receiver: receiverId ? await this.usersRepository.findOne({ where: { id: receiverId } }) : null
+  });
+
+  // If it's a group message, set the receiver to null
+  if (groupId) {
+    message.receiver = null;
+  }
+
+  // Optional: Assign receiver
+  if (receiverId) {
+    const receiver = await this.usersRepository.findOne({ where: { id: receiverId } });
+    if (!receiver) {
+      throw new NotFoundException('Receiver not found');
+    }
+    message.receiver = receiver;
+  }
+
+  // Optional: Assign group
+  if (groupId) {
+    const group = await this.groupsRepository.findOne({ where: { id: +groupId } });
+    if (!group) {
+      throw new NotFoundException('Group not found');
+    }
+    message.group = group;
+  }
+
+  message.roomId = groupId || 'friends_chat';
+
+
+  return this.messagesRepository.save(message);
+}
 
   async findAll(): Promise<Message[]> {
     return this.messagesRepository.find({
@@ -58,6 +70,14 @@ export class MessageService {
       order: { timestamp: 'DESC' },
     });
   }
+  async findByRoomId(roomId: string): Promise<Message[]> {
+    return this.messagesRepository.find({
+      where: { roomId: roomId },
+      relations: ['sender', 'receiver', 'group'],
+      order: { timestamp: 'DESC' },
+    });
+  }
+  
 
   async findOne(id: number): Promise<Message | null> {
     return this.messagesRepository.findOne({
@@ -65,6 +85,8 @@ export class MessageService {
       relations: ['sender', 'receiver', 'group'],
     });
   }
+
+  
 
   async update(id: number, updateMessageDto: UpdateMessageDto): Promise<Message> {
     const message = await this.messagesRepository.findOne({ where: { id } });

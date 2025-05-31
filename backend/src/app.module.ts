@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 
 import { MessageModule } from './message/message.module';
 import { UserModule } from './user/user.module';
+import { GroupModule } from './group/group.module'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UserModule } from './user/user.module';
     UserModule,
     MessageModule,
     AuthModule,
+    GroupModule,
   ],
   controllers: [AppController],
   providers: [AppService],

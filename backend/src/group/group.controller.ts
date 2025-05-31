@@ -4,9 +4,11 @@ import { Group } from './group.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../user/user.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('groups')
 @Controller('groups')
-@UseGuards(AuthGuard())
+@UseGuards(AuthGuard('jwt')) // ✅ Important!
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 

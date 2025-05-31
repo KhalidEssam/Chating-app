@@ -3,7 +3,7 @@ import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { Message } from './message.entity';
 
 @ApiTags('messages')
@@ -12,12 +12,19 @@ import { Message } from './message.entity';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create a new message' })
-  @ApiResponse({ status: 201, description: 'The message has been successfully created.', type: Message })
-  create(@Body() createMessageDto: CreateMessageDto) {
-    return this.messageService.create(createMessageDto);
-  }
+// message.controller.ts
+
+@Post()
+@ApiOperation({ summary: 'Create a new message' })
+@ApiResponse({
+  status: 201,
+  description: 'The message has been successfully created.',
+  type: Message,
+})
+async create(@Body() createMessageDto: CreateMessageDto) {
+  return this.messageService.create(createMessageDto);
+}
+
 
   @Get()
   @ApiOperation({ summary: 'Get all messages' })
@@ -25,13 +32,21 @@ export class MessageController {
   findAll() {
     return this.messageService.findAll();
   }
-
-  @Get(':id')
+  @Get('id/:id')
   @ApiOperation({ summary: 'Get a message by ID' })
   @ApiResponse({ status: 200, description: 'Return the message.', type: Message })
   findOne(@Param('id') id: string) {
     return this.messageService.findOne(+id);
   }
+  
+  @Get('room/:roomId')
+  @ApiOperation({ summary: 'Get messages by room ID' })
+  @ApiParam({ name: 'roomId', type: String, description: 'Room ID to fetch messages for' })
+  @ApiResponse({ status: 200, description: 'Messages for the specified room', type: [Message] })
+  async findByRoomId(@Param('roomId') roomId: string): Promise<Message[]> {
+    return this.messageService.findByRoomId(roomId);
+  }
+  
 
   @Put(':id')
   @ApiOperation({ summary: 'Update a message' })

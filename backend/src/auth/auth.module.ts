@@ -12,7 +12,7 @@ import { LocalStrategy } from './local.strategy';     // <-- if you have this
 @Module({
   imports: [
     ConfigModule,
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }), // ✅ Set default here
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
