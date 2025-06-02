@@ -44,8 +44,8 @@ interface Message {
 
 interface User {
   id: string;
-  name: string;
-  phoneNumber: string;
+  username: string;
+  // phoneNumber: string;
 }
 
 // Export types for use in other files
@@ -56,7 +56,8 @@ export { api };
 
 // Export API service functions
 export const apiService = {
-  async createGroup(groupData: { name: string; isActive: boolean; members: number[] }) {
+
+  async createGroup(groupData: { name: string;  creator: User  }) {
     try {
       const response = await api.post('/groups', groupData);
       return response.data;

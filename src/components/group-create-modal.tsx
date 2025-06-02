@@ -11,13 +11,12 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useSocket } from '@/contexts/socket-context';
-import { useRouter } from 'next/navigation'; // ✅ Correct for Next.js
 
 export const GroupCreateModal = () => {
   const [open, setOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
   const { createGroup } = useSocket();
-  const router = useRouter();
+
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -29,7 +28,7 @@ export const GroupCreateModal = () => {
     try {
       await createGroup(groupName);
       handleClose();
-      router.push(`/groups/${groupName}`);
+      // Refresh the groups list
     } catch (error) {
       console.error('Error creating group:', error);
     }

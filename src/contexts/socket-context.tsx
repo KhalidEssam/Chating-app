@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, {
   createContext,
@@ -7,11 +7,11 @@ import React, {
   useState,
   useRef,
   useMemo,
-} from 'react';
-import { io, type Socket } from 'socket.io-client';
-import { Message, User } from '@/services/api.service';
-import { useAuth } from '@/hooks/useAuth';
-import apiService from '@/services/api.service';
+} from "react";
+import { io, type Socket } from "socket.io-client";
+import { Message, User } from "@/services/api.service";
+import { useAuth } from "@/hooks/useAuth";
+import apiService from "@/services/api.service";
 
 interface SocketContextType {
   socketRef: React.RefObject<Socket | null>;
@@ -30,14 +30,14 @@ interface SocketContextType {
 }
 
 const EVENTS = {
-  CONNECT: 'connect',
-  DISCONNECT: 'disconnect',
-  CONNECT_ERROR: 'connect_error',
-  IDENTIFICATION_CONFIRMED: 'identification-confirmed',
-  ROOM_JOINED: 'room-joined',
-  ROOM_LEFT: 'room-left',
-  MESSAGE: 'message',
-  ROOM_HISTORY: 'room-history',
+  CONNECT: "connect",
+  DISCONNECT: "disconnect",
+  CONNECT_ERROR: "connect_error",
+  IDENTIFICATION_CONFIRMED: "identification-confirmed",
+  ROOM_JOINED: "room-joined",
+  ROOM_LEFT: "room-left",
+  MESSAGE: "message",
+  ROOM_HISTORY: "room-history",
 };
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -56,7 +56,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isIdentified, setIsIdentified] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [currentRoom, setCurrentRoom] = useState<number | null>(null);
-  const [lastMessages, setLastMessages] = useState<Record<number, { message: string; time: string }>>({});
+  const [lastMessages, setLastMessages] = useState<
+    Record<number, { message: string; time: string }>
+  >({});
   const socketRef = useRef<Socket | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -67,7 +69,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   useEffect(() => {
-    const socket = io('http://localhost:3001', {
+    const socket = io("http://localhost:3001", {
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
       timeout: 10000,
@@ -77,10 +79,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     socketRef.current = socket;
 
     socket.on(EVENTS.CONNECT, async () => {
-      console.log('Socket connected:', socket.id);
-      const token = localStorage.getItem('token');
+      console.log("Socket connected:", socket.id);
+      const token = localStorage.getItem("token");
       if (!token) {
-        setError('No token found');
+        setError("No token found");
         setInitialized(true);
         return;
       }
@@ -90,57 +92,57 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         setError(null);
         setIsIdentified(true);
         setInitialized(true);
-        socket.emit('identify', {
+        socket.emit("identify", {
           name: authUser?.name,
           phoneNumber: authUser?.phoneNumber,
         });
       } catch (err) {
-        console.error('Authentication failed:', err);
-        setError('Authentication failed');
+        console.error("Authentication failed:", err);
+        setError("Authentication failed");
         setIsIdentified(false);
         setInitialized(true);
       }
     });
 
     socket.on(EVENTS.DISCONNECT, (reason) => {
-      console.log('Socket disconnected:', reason);
+      console.log("Socket disconnected:", reason);
       setIsIdentified(false);
       setUser(null);
       setCurrentRoom(null);
     });
 
     socket.on(EVENTS.CONNECT_ERROR, (err) => {
-      console.error('Socket connection error:', err);
-      setError('Socket connection error');
+      console.error("Socket connection error:", err);
+      setError("Socket connection error");
       setInitialized(true);
     });
 
     socket.on(EVENTS.IDENTIFICATION_CONFIRMED, (userData: User) => {
-      console.log('Identification confirmed:', userData);
+      console.log("Identification confirmed:", userData);
       setUser(userData);
       setIsIdentified(true);
     });
 
     socket.on(EVENTS.ROOM_JOINED, async (roomId: number) => {
-      console.log('Room joined:', roomId);
+      console.log("Room joined:", roomId);
       try {
         // Request room history after joining
-        socket.emit('request-room-history', roomId);
+        socket.emit("request-room-history", roomId);
         console.log(roomId);
         setCurrentRoom(roomId);
       } catch (error) {
-        console.error('Error handling room join:', error);
-        setError('Failed to join room');
+        console.error("Error handling room join:", error);
+        setError("Failed to join room");
       }
     });
 
     socket.on(EVENTS.ROOM_HISTORY, (messages: Message[], roomId: number) => {
       console.log(`Received message history for room ${roomId}:`, messages);
-      
+
       const formattedMessages = messages?.map((msg) =>
         formatMessage(msg, userRef.current?.id)
       );
-      
+
       // Update messagesMap which will trigger currentMessages to update automatically
       setMessagesMap((prev) => ({
         ...prev,
@@ -150,16 +152,17 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       // Set last message for this room
       if (formattedMessages.length > 0) {
         const lastMsg = formattedMessages[formattedMessages.length - 1];
-        setLastMessages(prev => ({
+        setLastMessages((prev) => ({
           ...prev,
           [roomId]: {
             message: lastMsg.content,
-            time: lastMsg.createdAt ? new Date(lastMsg.createdAt).toLocaleTimeString() : new Date().toLocaleTimeString()
-          }
+            time: lastMsg.createdAt
+              ? new Date(lastMsg.createdAt).toLocaleTimeString()
+              : new Date().toLocaleTimeString(),
+          },
         }));
       }
     });
-    
 
     socket.on(EVENTS.ROOM_LEFT, (roomId: number) => {
       console.log(`Left room ${roomId}`);
@@ -167,12 +170,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       if (currentRoom === roomId) {
         setCurrentRoom(null);
         // Clear messages for this room
-        setMessagesMap(prev => ({
+        setMessagesMap((prev) => ({
           ...prev,
-          [roomId]: []
+          [roomId]: [],
         }));
         // Clear last message for this room
-        setLastMessages(prev => {
+        setLastMessages((prev) => {
           const newLastMessages = { ...prev };
           delete newLastMessages[roomId];
           return newLastMessages;
@@ -185,17 +188,22 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         const roomMessages = prev[msg.roomId] || [];
         return {
           ...prev,
-          [msg.roomId]: [...roomMessages, formatMessage(msg, userRef.current?.id)],
+          [msg.roomId]: [
+            ...roomMessages,
+            formatMessage(msg, userRef.current?.id),
+          ],
         };
       });
 
       // Update last message for this room
-      setLastMessages(prev => ({
+      setLastMessages((prev) => ({
         ...prev,
         [msg.roomId]: {
           message: msg.content,
-          time: msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : new Date().toLocaleTimeString()
-        }
+          time: msg.createdAt
+            ? new Date(msg.createdAt).toLocaleTimeString()
+            : new Date().toLocaleTimeString(),
+        },
       }));
     });
 
@@ -209,10 +217,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   const joinRoom = (roomId: string) => {
     const socket = socketRef.current;
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
     if (!socket || !socket.connected) return;
 
-    socket.emit('join-room', roomId, token);
+    socket.emit("join-room", roomId, token);
   };
 
   // const leaveRoom = (roomId: number) => {
@@ -223,7 +231,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   const sendMessage = async (content: string) => {
     const socket = socketRef.current;
-    const sender = userRef.current;
+    const storedUser = localStorage.getItem('user');
+    if(!storedUser) return
+    const sender = JSON.parse(storedUser) as User;
+
     const roomId = currentRoom;
 
     if (!socket || !socket.connected || !sender || !roomId) return;
@@ -238,7 +249,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       };
       // console.log('message', message)
       await apiService.createMessage(message);
-      socket.emit('message', message);
+      socket.emit("message", message);
 
       setMessagesMap((prev) => {
         const roomMessages = prev[roomId] || [];
@@ -248,8 +259,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         };
       });
     } catch (err) {
-      console.error('Error sending message:', err);
-      setError('Failed to send message');
+      console.error("Error sending message:", err);
+      setError("Failed to send message");
     }
   };
 
@@ -257,16 +268,21 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const socket = socketRef.current;
     if (!socket || !socket.connected || !userRef.current) return;
 
+    const storedUser = localStorage.getItem("user");
+    let user: User | null = null;
+
     try {
-      const group = await apiService.createGroup({
-        name: groupName,
-        isActive: true,
-        members: [],
-      });
-      joinRoom(group.id.toString());
+      if (storedUser) {
+        user = JSON.parse(storedUser) as User;
+        const group = await apiService.createGroup({
+          name: groupName,
+          creator: user,
+        });
+        joinRoom(group.id.toString());
+      }
     } catch (err) {
-      console.error('Error creating group:', err);
-      setError('Failed to create group');
+      console.error("Error creating group:", err);
+      setError("Failed to create group");
     }
   };
 
@@ -288,7 +304,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       currentMessages,
       lastMessages,
     }),
-    [isIdentified, currentMessages, currentRoom, user, error, initialized, lastMessages]
+    [
+      isIdentified,
+      currentMessages,
+      currentRoom,
+      user,
+      error,
+      initialized,
+      lastMessages,
+    ]
   );
 
   return (
@@ -301,7 +325,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 export const useSocket = () => {
   const context = useContext(SocketContext);
   if (!context) {
-    throw new Error('useSocket must be used within a SocketProvider');
+    throw new Error("useSocket must be used within a SocketProvider");
   }
   return context;
 };

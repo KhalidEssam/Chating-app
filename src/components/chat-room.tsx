@@ -5,6 +5,7 @@ import { Box, Paper, TextField, IconButton, Typography } from "@mui/material";
 import { Send } from "@mui/icons-material";
 import { useSocket } from "@/contexts/socket-context";
 import { MessageItem } from "./message";
+import {User} from "@/services/api.service"
 
 interface ChatRoomProps {}
 
@@ -51,7 +52,13 @@ export const ChatRoom = ({}: ChatRoomProps) => {
         </Box>
         <Box flex={1} overflow="auto" p={2}>
           {messages?.map((msg, index) => {
-            // console.log('message' ,msg)
+              const storedUser = localStorage.getItem('user')
+              if (!storedUser) return
+            
+              const user= JSON.parse(storedUser) as User;
+              const isOwn = msg?.sender?.id === user?.id;
+              
+            console.log('message' ,msg.sender?.id)
             if (!msg ) return null;
             return (
               <Box
@@ -59,20 +66,20 @@ export const ChatRoom = ({}: ChatRoomProps) => {
                 display="flex"
                 alignItems="center"
                 gap={1}
-                justifyContent={msg.isOwn ? "flex-end" : "flex-start"}
+                justifyContent={isOwn ? "flex-end" : "flex-start"}
               >
-                {!msg.isOwn && (
-                  <Typography variant="body2" color="textSecondary">
-                    {msg.sender.username }
+                {!isOwn && (
+                  <Typography variant="body2" color="textSecondary" >
+                    {msg.sender?.username }
                   </Typography>
                 )}
                 <MessageItem
                   message={msg}
-                  isOwn={msg.isOwn ?? false} // <-- Fix here
+                  isOwn={isOwn} // <-- Fix here
                 />
-                {msg.isOwn && (
+                {isOwn && (
                   <Typography variant="body2" color="textSecondary">
-                    {msg.sender?.username|| 'me' }
+                    {msg.sender?.username || 'me' }
                   </Typography>
                 )}
               </Box>
