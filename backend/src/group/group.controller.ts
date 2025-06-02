@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './group.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../user/user.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateGroupDto } from './dto/update-group.dto';
+import { ValidationPipe } from '@nestjs/common';
 
 @ApiTags('groups')
 @Controller('groups')
@@ -13,7 +16,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Post()
-  async createGroup(@Body() createGroupDto: any, @GetUser() user: User): Promise<Group> {
+  async createGroup(@Body(ValidationPipe) createGroupDto: CreateGroupDto, @GetUser() user: User): Promise<Group> {
     return this.groupService.createGroup(createGroupDto, user);
   }
 
@@ -29,8 +32,8 @@ export class GroupController {
 
   @Put(':id')
   async updateGroup(
-    @Param('id') id: number,
-    @Body() updateGroupDto: any,
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) updateGroupDto: UpdateGroupDto,
     @GetUser() user: User
   ): Promise<Group> {
     return this.groupService.updateGroup(id, updateGroupDto);

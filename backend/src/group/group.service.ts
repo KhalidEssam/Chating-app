@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Group } from './group.entity';
 import { User } from '../user/user.entity';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateGroupDto } from './dto/update-group.dto';
 
 @Injectable()
 export class GroupService {
@@ -13,7 +15,7 @@ export class GroupService {
     private userRepository: Repository<User>
   ) {}
 
-  async createGroup(createGroupDto: any, creator: User): Promise<Group> {
+  async createGroup(createGroupDto: CreateGroupDto, creator: User): Promise<Group> {
     const { name, membersIds } = createGroupDto;
     
     const group = this.groupRepository.create({
@@ -47,7 +49,7 @@ export class GroupService {
     return group;
   }
 
-  async updateGroup(id: number, updateGroupDto: any): Promise<Group> {
+  async updateGroup(id: number, updateGroupDto: UpdateGroupDto): Promise<Group> {
     const group = await this.getGroup(id);
     Object.assign(group, updateGroupDto);
     return this.groupRepository.save(group);
