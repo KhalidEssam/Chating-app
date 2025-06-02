@@ -7,6 +7,7 @@ import { ChatSidebar } from '@/components/chat-sidebar';
 import { ChatToolbar } from '@/components/chat-toolbar';
 import { useSocket } from '@/contexts/socket-context';
 import { apiService } from '@/services/api.service';
+import {Loader} from '@/components/spinner'
 
 export default function Home() {
   const router = useRouter();
@@ -42,7 +43,15 @@ export default function Home() {
   }, [token, router]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center bg-light justify-center min-h-screen">
+        <Loader/>
+
+      </div>
+      // <div className="flex items-center bg-light justify-center min-h-screen">
+      //   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"> </div>
+      // </div>
+    );
   }
 
   return (
