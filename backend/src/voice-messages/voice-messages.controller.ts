@@ -2,7 +2,8 @@ import { Controller, Post, UseInterceptors, UploadedFile, Body, UseGuards, Req, 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { VoiceMessagesService } from './voice-messages.service';
 import { CreateVoiceMessageDto } from './dto/create-voice-message.dto';
-import { ApiTags, ApiConsumes, ApiBody, ApiBearerAuth } from '@nestjs/swagger'; // If you use Swagger
+import { VoiceMessage } from './entities/voice-message.entity'; // Import for ApiResponse type
+import { ApiTags, ApiConsumes, ApiBody, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger'; // If you use Swagger
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'; // Corrected path
 import { User } from '../user/user.entity'; // Corrected User entity path
 import { Response } from 'express';
@@ -19,6 +20,12 @@ export class VoiceMessagesController {
     ) {}
 
   @Post('upload')
+  @ApiOperation({ summary: 'Upload a new voice message' })
+  @ApiResponse({ status: 201, description: 'Voice message uploaded successfully.', type: VoiceMessage }) // Assuming VoiceMessage entity is the response type
+  @ApiResponse({ status: 400, description: 'Bad Request (e.g., validation error, missing file).' })
+  @ApiResponse({ status: 401, description: 'Unauthorized (JWT token missing or invalid).' })
+  @ApiResponse({ status: 413, description: 'Payload Too Large (file exceeds size limit).' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error.' })
   @ApiBearerAuth() // If using JWT
   @UseGuards(JwtAuthGuard) // Protect this route
   @UseInterceptors(FileInterceptor('voiceFile')) // 'voiceFile' is the field name in form-data
