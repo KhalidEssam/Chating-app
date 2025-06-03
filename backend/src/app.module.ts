@@ -9,7 +9,9 @@ import { AuthModule } from './auth/auth.module';
 
 import { MessageModule } from './message/message.module';
 import { UserModule } from './user/user.module';
-import { GroupModule } from './group/group.module'
+import { GroupModule } from './group/group.module';
+import { VoiceMessagesModule } from './voice-messages/voice-messages.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module'; // Added CloudinaryModule import
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { GroupModule } from './group/group.module'
     MessageModule,
     AuthModule,
     GroupModule,
+    VoiceMessagesModule,
+    CloudinaryModule, // Added CloudinaryModule
   ],
   controllers: [AppController],
   providers: [AppService],

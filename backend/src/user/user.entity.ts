@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Message } from '../message/message.entity'; // adjust path as needed
 import { Group } from '../group/group.entity'; // if you have a Group entity
+import { VoiceMessage } from '../voice-messages/entities/voice-message.entity'; // Added for voice messages
 
 export enum UserStatus {
   ONLINE = 'online',
@@ -23,7 +24,6 @@ export class User {
   phoneNumber?: string;
 
   @Column({ select: false })
-  @Column()
   password: string; // store hashed password only
 
   @Column({ nullable: true })
@@ -54,6 +54,10 @@ export class User {
   // Groups user is part of - assuming Group entity with ManyToMany relationship
   @ManyToMany(() => Group, (group) => group.members)
   groups: Group[];
+
+  // Voice messages sent by this user
+  @OneToMany(() => VoiceMessage, (voiceMessage) => voiceMessage.sender)
+  sentVoiceMessages: VoiceMessage[];
 
   @CreateDateColumn()
   createdAt: Date;
