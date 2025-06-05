@@ -22,10 +22,21 @@ export class VoiceMessagesService {
     createVoiceMessageDto: CreateVoiceMessageDto,
     sender: User, // Assuming sender is a User entity instance passed from controller
     file: Express.Multer.File,
-  ): Promise<VoiceMessage> {
+  )
+  : Promise<VoiceMessage> 
+  
+  {
+    console.log("createVoiceMessageDto", createVoiceMessageDto)
+
+    console.log("file", file)
     if (!file) {
       throw new InternalServerErrorException('Voice file is missing.');
     }
+
+    console.log("createVoiceMessageDto", createVoiceMessageDto);
+    console.log("sender",sender)
+    console.log("file",file)
+
 
     // 1. Upload the file to Cloudinary
     let fileUrl: string;
@@ -69,3 +80,5 @@ export class VoiceMessagesService {
 
   // Add other methods as needed, e.g., findAllForConversation, markAsRead, etc.
 }
+
+

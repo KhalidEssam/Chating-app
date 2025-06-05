@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsString, IsNumber, Min, IsUUID } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  Min,
+  Max,
+  IsUUID,
+  Matches,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger'; // If you use Swagger
 
 export class CreateVoiceMessageDto {
@@ -6,7 +14,8 @@ export class CreateVoiceMessageDto {
     description: 'ID of the conversation this voice message belongs to',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  @IsUUID()
+  // @IsUUID()
+  @IsString()
   @IsNotEmpty()
   conversationId: string;
 
@@ -16,6 +25,7 @@ export class CreateVoiceMessageDto {
   })
   @IsNumber()
   @Min(0.1) // Assuming a minimum duration
+  @Max(300) // 5 minutes max
   duration: number;
 
   @ApiProperty({
@@ -24,6 +34,7 @@ export class CreateVoiceMessageDto {
   })
   @IsString()
   @IsNotEmpty()
+  // @Matches(/^(audio\/(mpeg|ogg|wav|webm|aac|mp3|mp4|x-m4a|caf))$/i)
   mimeType: string;
 
   // The actual file will be handled by Multer (FileInterceptor)

@@ -10,7 +10,10 @@ export class CreateMessageDto {
   @ApiProperty({ description: 'ID of the user sending the message.', example: 'a1b2c3d4-e5f6-7890-1234-567890abcdef', format: 'uuid', required: true })
   @IsUUID()
   @IsNotEmpty()
-  senderId: string;
+  sender: {
+    id: string,
+    username: string,
+  };
 
   @ApiProperty({ description: 'ID of the room (conversation or group) this message belongs to.', example: 'room-xyz-789', required: true })
   @IsString()

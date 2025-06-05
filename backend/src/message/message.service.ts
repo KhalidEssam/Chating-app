@@ -18,21 +18,23 @@ export class MessageService {
     private groupsRepository: Repository<Group>,
   ) {}
 
-async create(createMessageDto: CreateMessageDto): Promise<Message> {
-  const { content, senderId, receiverId, groupId } = createMessageDto;
+async create(createMessageDto: CreateMessageDto) {
 
+  // console.log(createMessageDto);
+  const { content, sender, receiverId, groupId } = createMessageDto;
+  console.log(sender);
   // Fetch sender
-  const sender = await this.usersRepository.findOne({ where: { id: senderId } });
-  if (!sender) {
+  const userSender = await this.usersRepository.findOne({ where: { id: sender.id } });
+  if (!userSender) {
     throw new NotFoundException('Sender not found');
   }
 
   const message = this.messagesRepository.create({
     content,
-    sender,
-    senderName: sender.username,
+    sender: userSender,
+    senderName: userSender.username,
     roomId: createMessageDto.roomId,
-    receiver: receiverId ? await this.usersRepository.findOne({ where: { id: receiverId } }) : null
+    receiver: receiverId ? await this.usersRepository.findOne({ where: { id: receiverId } }) : undefined
   });
 
   // If it's a group message, set the receiver to null

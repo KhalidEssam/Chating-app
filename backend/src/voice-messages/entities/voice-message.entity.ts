@@ -1,5 +1,7 @@
 import { User } from '../../user/user.entity'; // Corrected User entity path
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
+import { Group } from 'src/group/group.entity';
 // import { Conversation } from '../../conversations/entities/conversation.entity'; // Assuming you have a Conversation entity
 import {
   Column,
@@ -26,12 +28,13 @@ export class VoiceMessage {
   @ApiProperty({ type: () => User, description: 'The user entity who sent the message' }) // Assuming User entity also has ApiProperty decorators
   sender: User;
 
-  // @Column()
-  // conversationId: string;
+  @Column({ nullable: false })
+  @IsString()
+  conversationId: string | "Solo_project";
 
-  // @ManyToOne(() => Conversation, (conversation) => conversation.voiceMessages, { onDelete: 'CASCADE' }) // Assuming Conversation entity has 'voiceMessages' relation
-  // @JoinColumn({ name: 'conversationId' })
-  // conversation: Conversation;
+  @ManyToOne(() => Group, (group) => group.messages, { onDelete: 'CASCADE' }) // Assuming Conversation entity has 'voiceMessages' relation
+  @JoinColumn({ name: 'name' })
+  group?: Group | "Solo_project";;
 
   @ApiProperty({ description: 'URL or path to the stored voice file', example: 'https://res.cloudinary.com/your_cloud_name/video/upload/v1234567890/voice_messages/your_file_name.webm' })
   @Column()
