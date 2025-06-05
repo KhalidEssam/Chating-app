@@ -61,6 +61,7 @@ io.on('connection', (socket: Socket) => {
     try {
       const res = await axios.get(`http://localhost:3002/messages/room/${roomId}`, {
         headers: {
+          
           Authorization: `Bearer ${token}`,
         },
       });

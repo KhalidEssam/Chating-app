@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, List, ListItem, ListItemText, Avatar, Typography, IconButton } from '@mui/material';
 import { Person, GroupAdd, ExitToApp } from '@mui/icons-material';
-import { useSocket } from '@/contexts/socket-context';
+import { useSocket } from "@/contexts/socket-context";
 import { GroupCreateModal } from './group-create-modal';
 import {apiService} from '@/services/api.service';  // adjust path accordingly
 
@@ -26,7 +26,7 @@ export const ChatSidebar = () => {
     async function fetchGroups() {
       try {
         const groups = await apiService.getAllGroups();
-        console.log(groups);
+        // console.log(groups);
         // Assuming API returns array of groups like [{ id, name, members: [] }]
         const formattedRooms = groups.map((group: any) => ({
           id: group.id.toString(),

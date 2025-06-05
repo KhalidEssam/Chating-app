@@ -19,7 +19,7 @@ export const MessageItem = ({ message, isOwn }: MessageProps) => {
     >
       <Typography variant="body2">{message.content}</Typography>
       <Typography variant="caption" sx={{ mt: 0.5, textAlign: 'right' }}>
-        {message.createdAt}
+        {message.timestamp }
       </Typography>
     </Box>
   );

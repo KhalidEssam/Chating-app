@@ -12,6 +12,7 @@ import { io, type Socket } from "socket.io-client";
 import { Message, User } from "@/services/api.service";
 import { useAuth } from "@/hooks/useAuth";
 import apiService from "@/services/api.service";
+import { promises } from "dns";
 
 interface SocketContextType {
   socketRef: React.RefObject<Socket | null>;
@@ -22,6 +23,7 @@ interface SocketContextType {
   user: User | null;
   sendMessage: (content: string) => void;
   joinRoom: (roomId: string) => void;
+  saveVoiceRecord: (file: File, duration: number, mimeType: string, conversationId?: string) => Promise<void>;
   // leaveRoom: (roomId: number) => void;
   createGroup: (groupName: string) => Promise<void>;
   error: string | null;
@@ -44,10 +46,10 @@ const SocketContext = createContext<SocketContextType | null>(null);
 
 const formatMessage = (msg: Message, currentUserId?: string): Message => ({
   ...msg,
-  createdAt: msg.createdAt || new Date().toISOString(),
+  timestamp: msg.timestamp || new Date().toISOString(),
   roomId: msg.roomId,
-  isOwn: msg.senderId === currentUserId,
-  senderId: msg.senderId,
+  isOwn: msg.sender.id === currentUserId,
+  sender: msg.sender,
 });
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
@@ -137,7 +139,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     socket.on(EVENTS.ROOM_HISTORY, (messages: Message[], roomId: number) => {
-      console.log(`Received message history for room ${roomId}:`, messages);
+      // console.log(`Received message history for room ${roomId}:`, messages);
 
       const formattedMessages = messages?.map((msg) =>
         formatMessage(msg, userRef.current?.id)
@@ -156,8 +158,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
           ...prev,
           [roomId]: {
             message: lastMsg.content,
-            time: lastMsg.createdAt
-              ? new Date(lastMsg.createdAt).toLocaleTimeString()
+            time: lastMsg.timestamp
+              ? new Date(lastMsg.timestamp).toLocaleTimeString()
               : new Date().toLocaleTimeString(),
           },
         }));
@@ -200,8 +202,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         ...prev,
         [msg.roomId]: {
           message: msg.content,
-          time: msg.createdAt
-            ? new Date(msg.createdAt).toLocaleTimeString()
+          time: msg.timestamp
+            ? new Date(msg.timestamp).toLocaleTimeString()
             : new Date().toLocaleTimeString(),
         },
       }));
@@ -223,6 +225,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     socket.emit("join-room", roomId, token);
   };
 
+ 
+
   // const leaveRoom = (roomId: number) => {
   //   const socket = socketRef.current;
   //   if (!socket || !socket.connected) return;
@@ -234,6 +238,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const storedUser = localStorage.getItem('user');
     if(!storedUser) return
     const sender = JSON.parse(storedUser) as User;
+    console.log('current user', sender)
 
     const roomId = currentRoom;
 
@@ -243,10 +248,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       const createdAt = new Date().toISOString();
       const message = {
         content,
-        senderId: sender.id,
+        sender:{ 
+          id: sender.id,
+          username: sender.username
+        },
         roomId,
         createdAt,
       };
+      console.log('current message', message)
+
       // console.log('message', message)
       await apiService.createMessage(message);
       socket.emit("message", message);
@@ -279,12 +289,43 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
           creator: user,
         });
         joinRoom(group.id.toString());
-      }
+    }
     } catch (err) {
       console.error("Error creating group:", err);
       setError("Failed to create group");
     }
   };
+
+  const saveVoiceRecord = async (file: File, duration: number, mimeType:string, conversationId?: string) => {
+    try {
+      // === Validate inputs ===
+      if (!file || !duration || !conversationId) {
+        throw new Error("Missing required parameters");
+      }
+      console.log( "file" ,file, "duration", duration, "currentRoom", conversationId);
+
+      // === Prepare FormData ===
+      const formData = new FormData();
+      formData.append("voiceFile", file);
+      formData.append("duration", duration.toString() );
+      formData.append("conversationId", conversationId);
+      formData.append("mimeType", mimeType); 
+  
+      // === Upload via API ===
+      const result = await apiService.uploadVoiceMessage(formData);
+  
+      // Optional: handle result (e.g., update UI, emit socket event)
+      console.log("Voice message uploaded:", result);
+  
+      return result;
+    } catch (error) {
+      console.error("Failed to save voice record:", error);
+      throw error;
+    }
+  };
+  
+
+  
 
   const currentMessages = currentRoom ? messagesMap[currentRoom] || [] : [];
 
@@ -303,6 +344,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       initialized,
       currentMessages,
       lastMessages,
+      saveVoiceRecord,
     }),
     [
       isIdentified,
