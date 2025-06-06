@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Message } from '../message/message.entity'; // adjust path as needed
 import { Group } from '../group/group.entity'; // if you have a Group entity
-import { VoiceMessage } from '../voice-messages/entities/voice-message.entity'; // Added for voice messages
+import { VoiceMessage } from '../voice-messages/voice-message.entity'; // Added for voice messages
 
 export enum UserStatus {
   ONLINE = 'online',
