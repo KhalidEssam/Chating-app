@@ -18,7 +18,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { VoiceMessagesService } from './voice-messages.service';
 import { CreateVoiceMessageDto } from './dto/create-voice-message.dto';
-import { VoiceMessage } from './entities/voice-message.entity'; // Import for ApiResponse type
+import { VoiceMessage } from './voice-message.entity'; // Import for ApiResponse type
 import {
   ApiTags,
   ApiConsumes,
@@ -89,10 +89,11 @@ export class VoiceMessagesController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // 10MB max file size       
+          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // 10MB max file size
         ],
       }),
-    ) file: Express.Multer.File,
+    )
+    file: Express.Multer.File,
 
     @Body('duration') duration: string,
     @Body('conversationId') conversationId: string,
@@ -113,42 +114,62 @@ export class VoiceMessagesController {
     // For example: this.chatGateway.server.to(conversationId).emit('newVoiceMessage', voiceMessageDto);
     return voiceMessage; // Or a VoiceMessageDto
   }
-
+  @Get('getAllVoiceMessages')
+  @ApiOperation({ summary: 'Get all voice messages' })
+  @ApiResponse({
+    status: 201,
+    description: 'Voice messages fetched successfully.',
+    type: VoiceMessage,
+  }) // Assuming VoiceMessage entity is the response type
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request  (e.g., validation error on DTO).',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized (JWT token missing or invalid).',
+  })
+  @ApiResponse({
+    status: 413,
+    description: 'Payload Too Large (file exceeds size limit).',
+  })
+  @ApiResponse({ status: 500, description: 'Internal Server Error.' })
+  @ApiBearerAuth() // If using JWT
+  async getAllVoiceMessages() {
+    return this.voiceMessagesService.findALL();
+  }
 }
 
+// Example: GET endpoint for specific voice message (e.g., for streaming or direct download if needed)
+// This requires a proper StorageService to stream files.
+// @Get(':id/file')
+// @UseGuards(JwtAuthGuard)
+// async getVoiceMessageFile(@Param('id') id: string, @Res() res: Response, @Req() req: any) {
+//   const voiceMessage = await this.voiceMessagesService.findOne(id);
+//   const user = req.user as User;
 
+//   // TODO: Add permission check: does 'user' have access to 'voiceMessage.conversationId'?
+//   this.logger.log(`User ${user.id} requested voice file ${id}`);
 
+//   // This is a placeholder for file streaming. You need to implement this with your storage solution.
+//   // For local storage, you might use something like:
+//   // import * as fs from 'fs';
+//   // import { join } from 'path';
+//   // const filePath = join(process.cwd(), voiceMessage.filePath); // Adjust path as per your storage structure
+//   // if (fs.existsSync(filePath)) {
+//   //   res.set({
+//   //     'Content-Type': voiceMessage.mimeType,
+//   //     // 'Content-Disposition': `attachment; filename="voice_message_${voiceMessage.id}"`, // For download
+//   //   });
+//   //   const fileStream = fs.createReadStream(filePath);
+//   //   fileStream.pipe(res);
+//   // } else {
+//   //   throw new NotFoundException('Voice file not found on server.');
+//   // }
 
-  // Example: GET endpoint for specific voice message (e.g., for streaming or direct download if needed)
-  // This requires a proper StorageService to stream files.
-  // @Get(':id/file')
-  // @UseGuards(JwtAuthGuard)
-  // async getVoiceMessageFile(@Param('id') id: string, @Res() res: Response, @Req() req: any) {
-  //   const voiceMessage = await this.voiceMessagesService.findOne(id);
-  //   const user = req.user as User;
-
-  //   // TODO: Add permission check: does 'user' have access to 'voiceMessage.conversationId'?
-  //   this.logger.log(`User ${user.id} requested voice file ${id}`);
-
-  //   // This is a placeholder for file streaming. You need to implement this with your storage solution.
-  //   // For local storage, you might use something like:
-  //   // import * as fs from 'fs';
-  //   // import { join } from 'path';
-  //   // const filePath = join(process.cwd(), voiceMessage.filePath); // Adjust path as per your storage structure
-  //   // if (fs.existsSync(filePath)) {
-  //   //   res.set({
-  //   //     'Content-Type': voiceMessage.mimeType,
-  //   //     // 'Content-Disposition': `attachment; filename="voice_message_${voiceMessage.id}"`, // For download
-  //   //   });
-  //   //   const fileStream = fs.createReadStream(filePath);
-  //   //   fileStream.pipe(res);
-  //   // } else {
-  //   //   throw new NotFoundException('Voice file not found on server.');
-  //   // }
-
-  //   // If using a cloud storage service (S3, GCS, etc.):
-  //   // const fileStream = await this.storageService.getFileStream(voiceMessage.filePath);
-  //   // res.set({ 'Content-Type': voiceMessage.mimeType });
-  //   // fileStream.pipe(res);
-  //   res.status(501).send('File streaming not implemented yet.');
-  // }
+//   // If using a cloud storage service (S3, GCS, etc.):
+//   // const fileStream = await this.storageService.getFileStream(voiceMessage.filePath);
+//   // res.set({ 'Content-Type': voiceMessage.mimeType });
+//   // fileStream.pipe(res);
+//   res.status(501).send('File streaming not implemented yet.');
+// }

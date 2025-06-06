@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { VoiceMessage } from './entities/voice-message.entity';
+import { VoiceMessage } from './voice-message.entity';
 import { VoiceMessagesService } from './voice-messages.service';
 import { VoiceMessagesController } from './voice-messages.controller';
 import { UserModule } from '../user/user.module'; // Corrected path

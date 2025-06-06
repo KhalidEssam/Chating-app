@@ -1,10 +1,11 @@
 import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { VoiceMessage } from './entities/voice-message.entity';
+import { VoiceMessage } from './voice-message.entity';
 import { CreateVoiceMessageDto } from './dto/create-voice-message.dto';
 import { User } from '../user/user.entity'; // Corrected User entity path
 import { CloudinaryService } from '../cloudinary/cloudinary.service'; // Added CloudinaryService import
+import { promises } from 'dns';
 // import { StorageService } from '../storage/storage.service'; // If you have a generic storage service
 
 @Injectable()
@@ -76,6 +77,23 @@ export class VoiceMessagesService {
       throw new NotFoundException(`VoiceMessage with ID "${id}" not found`);
     }
     return voiceMessage;
+  }
+
+  async findALL(): Promise<VoiceMessage[]> {
+
+    const Records = await this.voiceMessageRepository.find(
+      {
+        relations: ['group'],
+        order: { createdAt: 'DESC' }
+
+      }
+
+    )
+    if (!Records) {
+      throw new NotFoundException(`Records not found`);
+    }
+
+    return Records;
   }
 
   // Add other methods as needed, e.g., findAllForConversation, markAsRead, etc.
