@@ -83,7 +83,7 @@ export class VoiceMessagesService {
 
     const Records = await this.voiceMessageRepository.find(
       {
-        relations: ['group'],
+        relations: ['sender','group'],
         order: { createdAt: 'DESC' }
 
       }

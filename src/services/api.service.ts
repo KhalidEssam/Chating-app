@@ -41,6 +41,8 @@ interface Message {
   roomId: number;
   timestamp?: string;
   isOwn?: boolean;
+  filePath?: string;
+  duration?: number
 }
 
 interface VoiceMessage {
@@ -135,6 +137,15 @@ export const apiService = {
       } else {
         console.error('Unexpected error:', error);
       }
+      throw error;
+    }
+  },
+  async getAllVoiceMessages(conversationId: string) {
+    try {
+      const response = await api.get('/voice-messages/getAllVoiceMessages');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching messages:", error);
       throw error;
     }
   },

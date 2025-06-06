@@ -1,7 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es2015",  // Updated to support Set iteration
-    "lib": ["dom", "es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "esnext"],  // Added ES2015+ libs
+    "target": "es2015", // Updated to support Set iteration
+    "lib": [
+      "dom",
+      "es2015",
+      "es2016",
+      "es2017",
+      "es2018",
+      "es2019",
+      "es2020",
+      "esnext"
+    ], // Added ES2015+ libs
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -11,7 +20,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": false,
+    "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
     "plugins": [
@@ -20,9 +29,19 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "server.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "server.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

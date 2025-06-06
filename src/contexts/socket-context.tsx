@@ -46,8 +46,8 @@ const SocketContext = createContext<SocketContextType | null>(null);
 
 const formatMessage = (msg: Message, currentUserId?: string): Message => ({
   ...msg,
-  timestamp: msg.timestamp || new Date().toISOString(),
-  roomId: msg.roomId,
+  timestamp: msg.timestamp || msg.createdAt,
+  roomId: msg.roomId || msg.conversationId,
   isOwn: msg.sender.id === currentUserId,
   sender: msg.sender,
 });
@@ -138,12 +138,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    socket.on(EVENTS.ROOM_HISTORY, (messages: Message[], roomId: number) => {
-      // console.log(`Received message history for room ${roomId}:`, messages);
+    socket.on(EVENTS.ROOM_HISTORY, (messages: Message[], roomId: string) => {      
 
       const formattedMessages = messages?.map((msg) =>
         formatMessage(msg, userRef.current?.id)
       );
+
+      // console.log("formattedMessages", formattedMessages)
 
       // Update messagesMap which will trigger currentMessages to update automatically
       setMessagesMap((prev) => ({
@@ -154,7 +155,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       // Set last message for this room
       if (formattedMessages.length > 0) {
         const lastMsg = formattedMessages[formattedMessages.length - 1];
-        setLastMessages((prev) => ({
+        lastMsg.roomId.toString() === roomId ? setLastMessages((prev) => ({
           ...prev,
           [roomId]: {
             message: lastMsg.content,
@@ -162,7 +163,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
               ? new Date(lastMsg.timestamp).toLocaleTimeString()
               : new Date().toLocaleTimeString(),
           },
-        }));
+        })) : true ;
       }
     });
 

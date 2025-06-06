@@ -7,6 +7,8 @@ import { useSocket } from "@/contexts/socket-context";
 import { MessageItem } from "./message";
 import { MessageSearch } from "./message-search";
 import { User } from "@/services/api.service";
+import VoiceRecorderPlayer from './voiceRecorderPlayer';
+
 
 interface ChatRoomProps {}
 
@@ -103,17 +105,7 @@ export const ChatRoom = ({}: ChatRoomProps) => {
           type: "audio/webm",
         });
 
-        console.log(audioFile);
-
         if (currentRoom && duration > 0) {
-          console.log(
-            "file",
-            audioFile,
-            "duration",
-            duration,
-            "currentRoom",
-            currentRoom
-          );
           const mimeType = audioBlob.type || "audio/webm"; // Fallback to webm
           console.log("audioBlob.type", audioBlob.type)
           try {
@@ -240,17 +232,18 @@ export const ChatRoom = ({}: ChatRoomProps) => {
                   px: 1,
                 }}
               >
-                {!isOwn && (
+                {!isOwn &&   (
                   <Typography variant="body2" color="textSecondary">
                     {msg.sender?.username}
                   </Typography>
-                )}
+                ) }
                 <MessageItem message={msg} isOwn={isOwn} />
-                {isOwn && (
+                {isOwn &&
                   <Typography variant="body2" color="textSecondary">
                     {msg.sender?.username || "me"}
                   </Typography>
-                )}
+                  }
+                
               </Box>
             );
           })}

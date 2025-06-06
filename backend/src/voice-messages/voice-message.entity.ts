@@ -33,7 +33,7 @@ export class VoiceMessage {
   conversationId: string | "Solo_project";
 
   @ManyToOne(() => Group, (group) => group.messages, { onDelete: 'CASCADE' }) // Assuming Conversation entity has 'voiceMessages' relation
-  @JoinColumn({ name: 'name' })
+  @JoinColumn({ name: 'group' })
   group?: Group | "Solo_project";;
 
   @ApiProperty({ description: 'URL or path to the stored voice file', example: 'https://res.cloudinary.com/your_cloud_name/video/upload/v1234567890/voice_messages/your_file_name.webm' })
