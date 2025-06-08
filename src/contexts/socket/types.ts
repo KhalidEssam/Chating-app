@@ -5,12 +5,11 @@ import { EVENTS } from "./socketEvents";
 export interface SocketContextType {
   socketRef: React.RefObject<Socket | null>;
   isIdentified: boolean;
-  messages: Message[];
-  currentRoomId: number | null;
-  currentMessages: Message[];
+  messagesMap: Record<number, Message[]>;
+  currentRoom: number | null;
   user: User | null;
   sendMessage: (content: string) => void;
-  joinRoom: (roomId: string) => void;
+  joinRoom: (roomId: number) => void;
   createGroup: (groupName: string) => Promise<void>;
   error: string | null;
   initialized: boolean;
@@ -29,8 +28,45 @@ export interface SocketState {
 
 export interface SocketActions {
   sendMessage: (content: string) => void;
-  joinRoom: (roomId: string) => void;
+  joinRoom: (roomId: number) => void;
   createGroup: (groupName: string) => Promise<void>;
 }
 
-export type SocketEvent = keyof typeof EVENTS;
+export interface SocketError {
+  code: string;
+  message: string;
+  timestamp: string;
+}
+
+// export type SocketEvent = keyof typeof EVENTS;
+
+// export type SocketAction = {
+//   type: SocketEvent;
+//   payload?: any;
+// };
+
+// export type SocketReducer = (state: SocketState, action: SocketAction) => SocketState;
+
+//   timestamp: string;
+// }
+
+// export type SocketEvent = keyof typeof EVENTS;
+
+// export type SocketAction = {
+//   type: SocketEvent;
+//   payload?: any;
+// };
+
+// export type SocketReducer = (state: SocketState, action: SocketAction) => SocketState;
+
+//   timestamp: string;
+// }
+
+// export type SocketEvent = keyof typeof EVENTS;
+
+// export type SocketAction = {
+//   type: SocketEvent;
+//   payload?: any;
+// };
+
+// export type SocketReducer = (state: SocketState, action: SocketAction) => SocketState;
