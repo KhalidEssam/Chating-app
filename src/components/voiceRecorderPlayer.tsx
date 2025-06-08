@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FaPlay, FaPause, FaMicrophone } from 'react-icons/fa';
 
 interface VoiceRecorderPlayerProps {
-  audioUrl: string;
+  audioUrl?: string;
   initduration: number; // in seconds
-  timestamp?: Date;
+  timestamp: string;
   waveformColor?: string;
   backgroundColor?: string;
   playheadColor?: string;
@@ -33,22 +33,46 @@ const VoiceRecorderPlayer: React.FC<VoiceRecorderPlayerProps> = ({
     };
   }, []);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     if (!audioRef.current) return;
-
-    if (isPlaying) {
-      audioRef.current.pause();
+  
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        if (progressInterval.current) {
+          clearInterval(progressInterval.current);
+        }
+      } else {
+        // Check if audio source exists before playing
+        if (!audioRef.current.src) {
+          console.error('No audio source specified');
+          return;
+        }
+        
+        // Attempt to play and handle potential errors
+        const playPromise = audioRef.current.play();
+        
+        if (playPromise !== undefined) {
+          await playPromise.catch(error => {
+            console.error('Playback failed:', error);
+            setIsPlaying(false);
+          });
+        }
+        
+        startProgressTimer();
+      }
+      
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error('Audio playback error:', error);
+      setIsPlaying(false);
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
       }
-    } else {
-      audioRef.current.play();
-      startProgressTimer();
     }
-
-    setIsPlaying(!isPlaying);
   };
 
+  
   const startProgressTimer = () => {
     if (progressInterval.current) {
       clearInterval(progressInterval.current);
