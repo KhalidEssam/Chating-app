@@ -7,8 +7,6 @@ import { useSocket } from "@/contexts/socket-context";
 import { MessageItem } from "./message";
 import { MessageSearch } from "./message-search";
 import { User } from "@/services/api.service";
-import VoiceRecorderPlayer from './voiceRecorderPlayer';
-
 
 interface ChatRoomProps {}
 
@@ -37,8 +35,8 @@ export const ChatRoom = ({}: ChatRoomProps) => {
   } = useSocket();
 
   const sortedMessages = [...messages].sort((a, b) => {
-    const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-    const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     return dateA - dateB;
   });
 

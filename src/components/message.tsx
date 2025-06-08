@@ -20,20 +20,24 @@ export const MessageItem = ({ message, isOwn }: MessageProps) => {
       }}
     >
       {message.content ? (
-        <Typography variant="body2"> {message.content}</Typography>
+        <>
+          <Typography variant="body2"> {message.content}</Typography>
+          <Typography variant="caption" sx={{ mt: 0.5, textAlign: "right" }}>
+            {message.createdAt}
+          </Typography>
+        </>
       ) : (
         <VoiceRecorderPlayer
-          audioUrl={message.filePath ? message.filePath : "true"}
+          audioUrl={message.filePath}
           initduration={message.duration ? message.duration : 11}
-          timestamp={message.timestamp ? message.createdAt : new Date()}
+          timestamp={
+            message.createdAt ? message.createdAt : new Date().toString()
+          }
           waveformColor="#25D366" // WhatsApp green
           backgroundColor="#e5e5ea" // Light gray
           playheadColor="#34B7F1" // WhatsApp blue
         />
       )}
-      <Typography variant="caption" sx={{ mt: 0.5, textAlign: "right" }}>
-        {message.timestamp ? message.timestamp : message.createdAt}
-      </Typography>
     </Box>
   );
 };
