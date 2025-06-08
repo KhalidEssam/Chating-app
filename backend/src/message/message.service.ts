@@ -69,14 +69,14 @@ async create(createMessageDto: CreateMessageDto) {
   async findAll(): Promise<Message[]> {
     return this.messagesRepository.find({
       relations: ['sender', 'receiver', 'group'],
-      order: { timestamp: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
   async findByRoomId(roomId: string): Promise<Message[]> {
     return this.messagesRepository.find({
       where: { roomId: roomId },
       relations: ['sender', 'receiver', 'group'],
-      order: { timestamp: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
   
