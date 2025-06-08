@@ -11,6 +11,13 @@ export function handleMessage(
 ) {
   setMessagesMap(prev => {
     const roomMessages = prev[msg.roomId] || [];
+    
+    // Check if message already exists
+    const messageExists = roomMessages.some(m => m.id === msg.id);
+    if (messageExists) {
+      return prev;
+    }
+
     return {
       ...prev,
       [msg.roomId]: [...roomMessages, formatMessage(msg, currentUserId)],
@@ -21,8 +28,8 @@ export function handleMessage(
     ...prev,
     [msg.roomId]: {
       message: msg.content,
-      time: msg.timestamp
-        ? new Date(msg.timestamp).toLocaleTimeString()
+      time: msg.createdAt
+        ? new Date(msg.createdAt).toLocaleTimeString()
         : new Date().toLocaleTimeString(),
     },
   }));
