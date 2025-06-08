@@ -13,6 +13,7 @@ interface Message {
   roomId: string;
   timestamp: string;
   sender: ConnectedUser;
+  conversationId?: string;
 }
 
 const PORT = process.env.PORT || 3001;
@@ -53,10 +54,13 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("join-room", async (roomId: string, token: string) => {
-    if (!token || !roomId) return;
+    if (!token || !roomId ) return;
 
     socket.join(roomId);
+
     socket.emit("room-joined", roomId);
+
+    // if(socket.rooms.has(roomId)) return;
 
     try {
       const messages_res = await axios.get(

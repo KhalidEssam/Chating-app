@@ -39,10 +39,11 @@ interface Message {
     username: string;
   };
   roomId: number;
-  timestamp?: string;
+  createdAt?: string;
   isOwn?: boolean;
   filePath?: string;
   duration?: number
+  conversationId?: number
 }
 
 interface VoiceMessage {
