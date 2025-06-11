@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChatRoom } from '@/components/chat-room';
+import { ChatRoom } from '@/components/ChatRoom';
 import { ChatSidebar } from '@/components/chat-sidebar';
 import { ChatToolbar } from '@/components/chat-toolbar';
 import { useSocket } from '@/contexts/socket-context';

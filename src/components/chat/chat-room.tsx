@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Box, Paper, TextField, IconButton, Typography } from "@mui/material";
 import { Send, Mic, Stop, PlayArrow, Pause } from "@mui/icons-material";
 import { useSocket } from "@/contexts/socket-context";
-import { MessageItem } from "./message";
-import { MessageSearch } from "./message-search";
+import { MessageItem } from "../message";
+import { MessageSearch } from "../message-search";
 import { User } from "@/services/api.service";
 
 interface ChatRoomProps {}
@@ -51,6 +51,8 @@ export const ChatRoom = ({}: ChatRoomProps) => {
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           setAudioChunks((prev) => [...prev, event.data]);
+          console.log("audioChunks.length >? =",audioChunks.length)
+
         }
       };
 
@@ -64,9 +66,7 @@ export const ChatRoom = ({}: ChatRoomProps) => {
 
       recorder.onstart = () => {
         setDuration(0);
-        intervalRef.current = setInterval(() => {
-          setDuration((prev) => prev + 0.1);
-        }, 100);
+        startInterval();
       };
 
       recorder.start();
@@ -77,6 +77,13 @@ export const ChatRoom = ({}: ChatRoomProps) => {
       console.error("Error starting recording:", error);
     }
   };
+
+  const startInterval = () => {
+    if (isPaused) return;
+    intervalRef.current = setInterval(() => {
+    setDuration((prev) => prev + 0.1);
+    }, 100);
+  }
 
   const pauseRecording = () => {
     if (mediaRecorder) {
@@ -96,8 +103,12 @@ export const ChatRoom = ({}: ChatRoomProps) => {
     if (mediaRecorder) {
       mediaRecorder.stop();
       setIsRecording(false);
-
+      console.log("stopped")
+      
       if (audioChunks.length > 0) {
+        console.log("audioChunks.length > 0")
+
+
         const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
         const audioFile = new File([audioBlob], `voice-${Date.now()}.webm`, {
           type: "audio/webm",
