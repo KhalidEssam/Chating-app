@@ -55,7 +55,7 @@ interface VoiceMessage {
 interface User {
   id: string;
   username: string;
-  // phoneNumber: string;
+  phoneNumber: string;
 }
 
 // Export types for use in other files

@@ -27,7 +27,7 @@ export const registerSocketHandlers = (
       socketActions.setIsIdentified(true);
       socketActions.setInitialized(true);
       socket.emit("identify", {
-        name: socketActions.userRef.current?.name,
+        name: socketActions.userRef.current?.username,
         phoneNumber: socketActions.userRef.current?.phoneNumber,
       });
     } catch (err) {

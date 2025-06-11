@@ -18,10 +18,6 @@ import { io, type Socket } from "socket.io-client";
 import { EVENTS } from "@/contexts/socket/socketEvents";
 import { handleMessage } from "@/contexts/socket/handlers/handleMessage";
 import { handleClearMessages } from "@/contexts/socket/handlers/handleClearMessages";
-import { createSocket } from "@/contexts/socket/socket.manager"
-
-
-
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const authUser = useAuth();
@@ -47,8 +43,17 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     handleMessage(msg, setMessagesMap, setLastMessages, userRef.current?.id);
   }, []);
 
+  const handleClearRoomMessages = useCallback((roomId: number) => {
+    handleClearMessages(roomId.toString(), setMessagesMap, setLastMessages);
+  }, []);
+
   useEffect(() => {
-    const socket = createSocket();
+    const socket = io("http://localhost:3001", {
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+      autoConnect: false,
+    });
 
     socketRef.current = socket;
 
@@ -123,7 +128,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       });
     });
 
+    socket.on(EVENTS.MESSAGE, (msg: Message) => {
+      handleNewMessage(msg);
+    });
+
     socket.connect();
+
     return () => {
       socket.disconnect();
       socketRef.current = null;
@@ -143,6 +153,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) return;
     const sender = JSON.parse(storedUser) as User;
+    // console.log("current user", sender);
 
     const roomId = currentRoom;
 
@@ -160,6 +171,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         createdAt,
       };
       await apiService.createMessage(message);
+      socket.emit("message", message);
 
       handleNewMessage(message);
 

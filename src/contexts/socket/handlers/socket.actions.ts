@@ -162,7 +162,7 @@ export class SocketActions {
         this.setIsIdentified(true);
         this.setInitialized(true);
         this.socket.emit("identify", {
-          name: this.userRef.current?.name,
+          name: this.userRef.current?.username,
           phoneNumber: this.userRef.current?.phoneNumber,
         });
       } catch (err) {
