@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'; // Import Swagger
 import { INestApplication } from '@nestjs/common';
+import { RateLimiterMiddleware } from './middleware/rate-limiter.middleware'; // Import rate limiter middleware
 
 async function setupSwagger(app: INestApplication) {
   const config = new DocumentBuilder()

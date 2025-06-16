@@ -1,7 +1,8 @@
 // src/app.module.ts
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { RateLimiterMiddleware } from './middleware/rate-limiter.middleware'; // Import rate limiter middleware
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -25,17 +26,23 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module'; // Added Clou
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      logging: true,// logs SQL queries for debugging
-      synchronize: true,// WARNING: Disable in production
+      logging: true,
+      synchronize: true,
     }),
-    UserModule,
-    MessageModule,
     AuthModule,
+    MessageModule,
+    UserModule,
     GroupModule,
     VoiceMessagesModule,
-    CloudinaryModule, // Added CloudinaryModule
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RateLimiterMiddleware)
+      .forRoutes('*');
+  }
+}
