@@ -5,7 +5,7 @@ import { RateLimiterMemory } from 'rate-limiter-flexible';
 @Injectable()
 export class RateLimiterMiddleware implements NestMiddleware {
   private rateLimiter = new RateLimiterMemory({
-    points: 100, // Number of points
+    points: 10, // Number of points
     duration: 60, // Per minute
   });
 
