@@ -13,6 +13,7 @@ import { UserModule } from './user/user.module';
 import { GroupModule } from './group/group.module';
 import { VoiceMessagesModule } from './voice-messages/voice-messages.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module'; // Added CloudinaryModule import
+import { SocketsModule } from './sockets/sockets.module';
 
 @Module({
   imports: [
@@ -27,7 +28,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module'; // Added Clou
       autoLoadEntities: true,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       logging: true,
-      synchronize: true,
     }),
     AuthModule,
     MessageModule,
@@ -35,6 +35,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module'; // Added Clou
     GroupModule,
     VoiceMessagesModule,
     CloudinaryModule,
+    SocketsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
