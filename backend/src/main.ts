@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'; // Import Swagger
 import { INestApplication } from '@nestjs/common';
-import { RateLimiterMiddleware } from './middleware/rate-limiter.middleware'; // Import rate limiter middleware
 
 async function setupSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
@@ -26,7 +25,7 @@ async function bootstrap() {
   // Setup Swagger
   setupSwagger(app);
 
-  await app.listen(process.env.PORT ?? 3002);
+  await app.listen(process.env.PORT ?? 3001);
   console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(`Swagger documentation is available at: ${await app.getUrl()}/api`); // Log Swagger URL
 }
