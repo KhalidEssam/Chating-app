@@ -18,7 +18,7 @@ import { io, type Socket } from "socket.io-client";
 import { EVENTS } from "@/contexts/socket/socketEvents";
 import { handleMessage } from "@/contexts/socket/handlers/handleMessage";
 import { handleClearMessages } from "@/contexts/socket/handlers/handleClearMessages";
-import { createSocket } from "@/contexts/socket/socket.manager"
+import SocketManager from "@/contexts/socket/socket.manager"
 
 
 
@@ -48,8 +48,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    const socket = createSocket();
-
+    const socket = SocketManager.getInstance().getSocket();
     socketRef.current = socket;
 
     socket.on(EVENTS.CONNECT, async () => {
