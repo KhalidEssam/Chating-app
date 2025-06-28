@@ -50,7 +50,7 @@ A modern chat application built with NestJS for the backend and React for the fr
    ```
 4. Create a `.env` file in the backend directory with the following variables:
    ```
-   PORT=3002
+   PORT=3001
    DATABASE_URL=postgresql://username:password@localhost:5432/chat_app
    JWT_SECRET=your-secret-key-here
    JWT_EXPIRATION=1h
